@@ -1,0 +1,73 @@
+#include <iostream>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <cstring>
+#include <csignal>
+#include "Commands.h"
+#include "signals.h"
+
+// void executeTimeCommand(int duration, const char* command) {
+//     struct sigaction sa;
+//     sa.sa_handler = alarmHandler;
+//     sigemptyset(&sa.sa_mask);
+//     sa.sa_flags = SA_RESTART;
+//     sigaction(SIGALRM, &sa, nullptr);
+//     alarm(duration);
+//     system(command);
+
+//     // Cancel the alarm after command execution
+//     alarm(0);
+// }
+
+// int getAlarmTiming(const string& cmd_line){
+//     size_t timePos = cmd_line.find_first_of(" ");
+//     if(timePos == string::npos){
+//         std::cerr << "smash error: timeout: invalid argument" << std::endl;
+//         return 0;
+//     }
+//     std::string s_duration = cmd_line.substr(0, timePos);
+//     int duration;
+//     try{
+//         duration = stoi(s_duration);
+//     }
+//     catch(...){
+//         return 0;
+//     }
+//     return duration;
+// }
+
+int main(int argc, char* argv[]) {
+    // struct sigaction sa;
+    // memset(&sa, 0, sizeof(sa));
+    // sa.sa_handler = alarmHandler;
+    // sigaction(SIGALRM, &sa, NULL);
+
+    if(signal(SIGINT , ctrlCHandler)==SIG_ERR) {
+        perror("smash error: failed to set ctrl-C handler");
+    }
+    // if(signal(SIGALRM, alarmHandler) == SIG_ERR){
+    //     perror("smash error: failed to set alarm handler");
+    // }
+    
+    SmallShell& smash = SmallShell::getInstance();
+    while(true) {
+        std::cout << smash.get_prompt();
+        std::string cmd_line;
+        std::getline(std::cin, cmd_line);
+        // if(cmd_line.substr(0, 7) == "timeout"){
+        //     std::string duration_commad = cmd_line.substr(8);
+        //     duration_commad = duration_commad.substr(duration_commad.find_first_not_of(" "));
+        //     int duration = getAlarmTiming(duration_commad);
+        //     alarm(duration);
+        //     smash.executeCommand(duration_commad.substr(duration_commad.find_first_of(" ")));
+        //     alarm(0);
+        // } else {
+        smash.executeCommand(cmd_line.c_str());
+        // }
+        // if(timedout){
+            // cout << "smash: " << cmd_line << " timed out!" << endl;
+        // }
+    }
+    return 0;
+}
